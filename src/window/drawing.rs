@@ -1,3 +1,5 @@
+use std::{cell::RefCell, rc::Rc};
+
 use gdk4_x11::X11Surface;
 use gtk4::{ApplicationWindow, CssProvider, cairo, prelude::*};
 use x11rb::{
@@ -8,7 +10,35 @@ use x11rb::{
     },
 };
 
-pub fn build_drawing_window(app: &gtk4::Application) -> ApplicationWindow {
+use super::ink::{Ink, Tool};
+
+#[derive(Clone)]
+pub struct DrawingController {
+    ink: Rc<RefCell<Ink>>,
+    canvas: gtk4::DrawingArea,
+}
+
+impl DrawingController {
+    pub fn set_tool(&self, tool: Tool) {
+        self.ink.borrow_mut().set_tool(tool);
+        self.canvas.queue_draw();
+    }
+
+    pub fn set_color(&self, color: gtk4::gdk::RGBA) {
+        self.ink.borrow_mut().set_color(color);
+    }
+
+    pub fn set_pen_width(&self, width: f64) {
+        self.ink.borrow_mut().set_pen_width(width);
+    }
+
+    pub fn clear(&self) {
+        self.ink.borrow_mut().clear();
+        self.canvas.queue_draw();
+    }
+}
+
+pub fn build_drawing_window(app: &gtk4::Application) -> (ApplicationWindow, DrawingController) {
     let provider = CssProvider::new();
     provider.load_from_data("window { background-color: transparent; }");
     gtk4::style_context_add_provider_for_display(
@@ -25,17 +55,51 @@ pub fn build_drawing_window(app: &gtk4::Application) -> ApplicationWindow {
         .build();
 
     let canvas = gtk4::DrawingArea::new();
-    canvas.set_draw_func(|_, context: &cairo::Context, _, _| {
-        // Cairo drawing for the future annotation canvas goes here.
-        context.set_operator(gtk4::cairo::Operator::Source);
-        context.set_source_rgba(0.0, 0.0, 0.0, 0.0);
-        context.paint().expect("Invalid cairo context");
-        context.set_operator(gtk4::cairo::Operator::Over); // Over for normal alpha blending
+    let ink = Rc::new(RefCell::new(Ink::default()));
+    let draw_ink = ink.clone();
+    canvas.set_draw_func(move |_, context: &cairo::Context, _, _| {
+        if let Err(error) = draw_ink.borrow().draw(context) {
+            eprintln!("Could not draw ink: {error}");
+        }
     });
 
+    let drag = gtk4::GestureDrag::new();
+    drag.set_button(1);
+    let begin_ink = ink.clone();
+    let begin_canvas = canvas.clone();
+    drag.connect_drag_begin(move |_, x, y| {
+        begin_ink.borrow_mut().begin(x, y);
+        begin_canvas.queue_draw();
+    });
+    let move_ink = ink.clone();
+    let move_canvas = canvas.clone();
+    drag.connect_drag_update(move |gesture, dx, dy| {
+        if let Some((start_x, start_y)) = gesture.start_point() {
+            move_ink.borrow_mut().move_to(start_x + dx, start_y + dy);
+            move_canvas.queue_draw();
+        }
+    });
+    let end_ink = ink.clone();
+    let end_canvas = canvas.clone();
+    drag.connect_drag_end(move |gesture, dx, dy| {
+        if let Some((start_x, start_y)) = gesture.start_point() {
+            end_ink.borrow_mut().move_to(start_x + dx, start_y + dy);
+        }
+        end_ink.borrow_mut().finish();
+        end_canvas.queue_draw();
+    });
+    let cancel_ink = ink.clone();
+    let cancel_canvas = canvas.clone();
+    drag.connect_cancel(move |_, _| {
+        cancel_ink.borrow_mut().finish();
+        cancel_canvas.queue_draw();
+    });
+    canvas.add_controller(drag);
+
     window.set_child(Some(&canvas));
+    window.fullscreen();
     window.present();
-    window
+    (window, DrawingController { ink, canvas })
 }
 
 pub fn set_click_through(window: &ApplicationWindow, click_through: bool) -> Result<(), String> {

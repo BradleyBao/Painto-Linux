@@ -7,12 +7,13 @@ fn main() -> glib::ExitCode {
         gio::ApplicationFlags::FLAGS_NONE,
     );
     app.connect_activate(|app| {
-        let drawing_window = drawing::build_drawing_window(app);
+        let (drawing_window, drawing_controller) = drawing::build_drawing_window(app);
 
         if let Err(error) = drawing::set_click_through(&drawing_window, true) {
             eprintln!("Could not change drawing window input region: {error}");
         }
-        let toolbar_window = toolbar::build_toolbar_window(app, &drawing_window);
+        let toolbar_window =
+            toolbar::build_toolbar_window(app, &drawing_window, &drawing_controller);
         if let Err(error) = drawing::set_always_on_top(&toolbar_window, true) {
             eprintln!("Could not keep toolbar above other windows: {error}");
         }
