@@ -8,6 +8,41 @@ use x11rb::{
     },
 };
 
+pub fn place_toolbar_bottom_left(window: &ApplicationWindow) -> Result<(), String> {
+    let surface = window.surface().ok_or("Window has no surface yet")?;
+    let x11_surface = surface
+        .clone()
+        .downcast::<X11Surface>()
+        .map_err(|_| "Window is not using X11")?;
+    let monitor = surface
+        .display()
+        .monitor_at_surface(&surface)
+        .ok_or("Could not determine toolbar monitor")?;
+    let bounds = monitor.geometry();
+    let (connection, _) = x11rb::connect(None).map_err(|error| error.to_string())?;
+    let window_id = x11_surface
+        .xid()
+        .try_into()
+        .map_err(|_| "X11 window ID exceeds u32")?;
+    let geometry = connection
+        .get_geometry(window_id)
+        .map_err(|error| error.to_string())?
+        .reply()
+        .map_err(|error| error.to_string())?;
+    let scale = surface.scale_factor();
+    let x = (bounds.x() + 16) * scale;
+    let y = (bounds.y() + bounds.height() - 16) * scale - i32::from(geometry.height);
+    connection
+        .configure_window(
+            window_id,
+            &x11rb::protocol::xproto::ConfigureWindowAux::new().x(x).y(y),
+        )
+        .map_err(|error| error.to_string())?
+        .check()
+        .map_err(|error| error.to_string())?;
+    connection.flush().map_err(|error| error.to_string())
+}
+
 pub fn set_click_through(window: &ApplicationWindow, click_through: bool) -> Result<(), String> {
     let surface = window.surface().ok_or("Window has no surface yet")?;
     let x11_surface = surface

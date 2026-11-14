@@ -2,7 +2,7 @@ use super::{drawing, ink::Tool};
 use crate::meta::Backend;
 use gtk4::{ApplicationWindow, prelude::*};
 
-use super::drawing_wayland;
+use super::{drawing_wayland, drawing_x11};
 
 pub fn build_toolbar_window(
     app: &gtk4::Application,
@@ -30,24 +30,29 @@ pub fn build_toolbar_window(
     row.set_margin_bottom(6);
 
     let drag_icon = gtk4::Image::from_icon_name("painto-drag-symbolic");
-    drag_icon.set_margin_start(1);
-    drag_icon.set_margin_end(1);
-    drag_icon.set_margin_top(1);
-    drag_icon.set_margin_bottom(1);
-    drag_icon.set_tooltip_text(Some("Drag toolbar"));
+    drag_icon.set_margin_start(12);
+    drag_icon.set_margin_end(12);
+    drag_icon.set_margin_top(12);
+    drag_icon.set_margin_bottom(12);
+    let drag_area = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+    drag_area.set_size_request(40, 40);
+    drag_area.set_halign(gtk4::Align::Center);
+    drag_area.set_valign(gtk4::Align::Center);
+    drag_area.set_tooltip_text(Some("Drag toolbar"));
+    drag_area.append(&drag_icon);
     if backend == Backend::Wayland {
-        drag_icon.set_cursor_from_name(Some("grab"));
+        drag_area.set_cursor_from_name(Some("grab"));
         let drag = gtk4::GestureDrag::new();
         drag.set_button(1);
         let drag_window = window.clone();
         drag.connect_drag_update(move |_, dx, dy| {
             drawing_wayland::move_toolbar_by(&drag_window, dx, dy);
         });
-        drag_icon.add_controller(drag);
-        row.append(&drag_icon);
+        drag_area.add_controller(drag);
+        row.append(&drag_area);
     } else {
         let drag_handle = gtk4::WindowHandle::new();
-        drag_handle.set_child(Some(&drag_icon));
+        drag_handle.set_child(Some(&drag_area));
         row.append(&drag_handle);
     }
     row.append(&gtk4::Separator::new(gtk4::Orientation::Vertical));
@@ -99,6 +104,7 @@ pub fn build_toolbar_window(
     // A regular color dialog appears below layer-shell surfaces on Wayland.
     if backend == Backend::Wayland {
         let color = gtk4::MenuButton::new();
+        color.set_direction(gtk4::ArrowType::Up);
         color.set_tooltip_text(Some("Pen color"));
         let swatch = gtk4::DrawingArea::new();
         swatch.set_content_width(22);
@@ -173,5 +179,13 @@ pub fn build_toolbar_window(
 
     window.set_child(Some(&row));
     window.present();
+    if backend == Backend::X11 {
+        let placed_window = window.clone();
+        gtk4::glib::idle_add_local_once(move || {
+            if let Err(error) = drawing_x11::place_toolbar_bottom_left(&placed_window) {
+                eprintln!("Could not place toolbar at bottom-left: {error}");
+            }
+        });
+    }
     window
 }

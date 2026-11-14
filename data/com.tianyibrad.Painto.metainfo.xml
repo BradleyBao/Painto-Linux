@@ -2,7 +2,7 @@
 <component type="desktop-application">
   <id>com.tianyibrad.Painto</id>
   <name>Painto</name>
-  <summary>Painto is a versatile app that allows you to draw and write directly on your computer screen in real-time, even while videos or other applications are running. </summary>
+  <summary>Draw and write over your desktop, including videos</summary>
   <developer id="com.tianyibrad">
     <name>Bao TianYi</name>
   </developer>
