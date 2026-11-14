@@ -46,9 +46,10 @@ modules:
       - install -Dm644 data/icons/com.tianyibrad.Painto.svg /app/share/icons/hicolor/scalable/apps/com.tianyibrad.Painto.svg
       - install -Dm644 LICENSE /app/share/licenses/com.tianyibrad.Painto/LICENSE
     sources:
-      # TODO: Replace this moving branch with an immutable release tag and matching commit before submitting to Flathub.
+      # TODO: Update the tag and matching commit together for each release.
       - type: git
         url: https://github.com/BradleyBao/Painto-Linux.git
-        branch: main
+        tag: v0.2.0
+        commit: 4bbc787e13876ca61e46b9baf2b4afbb296cb8c9
       # TODO: Regenerate this file whenever Cargo.lock changes; see flatpak/README.md.
       - cargo-sources.json
