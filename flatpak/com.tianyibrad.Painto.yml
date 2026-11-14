@@ -49,7 +49,7 @@ modules:
       # TODO: Update the tag and matching commit together for each release.
       - type: git
         url: https://github.com/BradleyBao/Painto-Linux.git
-        tag: v0.2.1
-        commit: 9b03eea341a6b2a22ec0dae3ba733c566d8d062c
+        tag: v0.2.2
+        commit: 0b101c9720ed187fdc36d44885c84db0ef0a7d55
       # !Regenerate this file whenever Cargo.lock changes; see flatpak/README.md.
       - cargo-sources.json
