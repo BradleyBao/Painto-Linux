@@ -36,6 +36,11 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="0.2.1" date="2026-11-14" type="development">
+      <description>
+        <p>Flatpak metadata corrections and toolbar fixes.</p>
+      </description>
+    </release>
     <!-- TODO: Add or update this release entry with the version, date, and changes for every release. -->
     <release version="0.1.0" date="2026-11-14" type="development">
       <description>
