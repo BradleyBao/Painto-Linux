@@ -1,16 +1,13 @@
 use std::{cell::RefCell, rc::Rc};
 
-use gdk4_x11::X11Surface;
 use gtk4::{ApplicationWindow, CssProvider, cairo, prelude::*};
-use x11rb::{
-    connection::Connection,
-    protocol::{
-        shape::{ConnectionExt as _, SK, SO},
-        xproto::{ClientMessageEvent, ConnectionExt as _, EventMask},
-    },
-};
 
-use super::ink::{Ink, Tool};
+use crate::meta::Backend;
+
+use super::{
+    drawing_wayland, drawing_x11,
+    ink::{Ink, Tool},
+};
 
 #[derive(Clone)]
 pub struct DrawingController {
@@ -38,9 +35,12 @@ impl DrawingController {
     }
 }
 
-pub fn build_drawing_window(app: &gtk4::Application) -> (ApplicationWindow, DrawingController) {
+pub fn build_drawing_window(
+    app: &gtk4::Application,
+    backend: Backend,
+) -> (ApplicationWindow, DrawingController) {
     let provider = CssProvider::new();
-    provider.load_from_data("window { background-color: transparent; }");
+    provider.load_from_data("window.painto-canvas { background-color: transparent; }");
     gtk4::style_context_add_provider_for_display(
         &gtk4::gdk::Display::default().expect("Could not connect to a display"),
         &provider,
@@ -53,6 +53,10 @@ pub fn build_drawing_window(app: &gtk4::Application) -> (ApplicationWindow, Draw
         .default_width(800)
         .default_height(600)
         .build();
+    window.add_css_class("painto-canvas");
+    if backend == Backend::Wayland {
+        drawing_wayland::prepare_drawing_window(&window);
+    }
 
     let canvas = gtk4::DrawingArea::new();
     let ink = Rc::new(RefCell::new(Ink::default()));
@@ -97,85 +101,33 @@ pub fn build_drawing_window(app: &gtk4::Application) -> (ApplicationWindow, Draw
     canvas.add_controller(drag);
 
     window.set_child(Some(&canvas));
-    window.fullscreen();
+    if backend == Backend::X11 {
+        window.fullscreen();
+    }
     window.present();
     (window, DrawingController { ink, canvas })
 }
 
-pub fn set_click_through(window: &ApplicationWindow, click_through: bool) -> Result<(), String> {
-    let surface = window.surface().ok_or("Window has no surface yet")?;
-    let x11_surface = surface
-        .downcast::<X11Surface>()
-        .map_err(|_| "Window is not using X11")?;
-    let window_id = x11_surface
-        .xid()
-        .try_into()
-        .map_err(|_| "X11 window ID exceeds u32")?;
-    let (connection, _) = x11rb::connect(None).map_err(|error| error.to_string())?;
-    if click_through {
-        connection
-            .shape_rectangles(
-                SO::SET,
-                SK::INPUT,
-                x11rb::protocol::xproto::ClipOrdering::UNSORTED,
-                window_id,
-                0,
-                0,
-                &[],
-            )
-            .map_err(|error| error.to_string())?
-            .check()
-            .map_err(|error| error.to_string())?;
-    } else {
-        // A source bitmap of None removes the custom shape and follows future resizes.
-        connection
-            .shape_mask(SO::SET, SK::INPUT, window_id, 0, 0, 0u32)
-            .map_err(|error| error.to_string())?
-            .check()
-            .map_err(|error| error.to_string())?;
+pub fn set_click_through(
+    window: &ApplicationWindow,
+    click_through: bool,
+    backend: Backend,
+) -> Result<(), String> {
+    match backend {
+        Backend::X11 => drawing_x11::set_click_through(window, click_through),
+        Backend::Wayland => drawing_wayland::set_click_through(window, click_through),
+        Backend::Unknown => Err("Unsupported display backend".into()),
     }
-    connection.flush().map_err(|error| error.to_string())
 }
 
-pub fn set_always_on_top(window: &ApplicationWindow, always_on_top: bool) -> Result<(), String> {
-    let surface = window.surface().ok_or("Window has no surface yet")?;
-    let x11_surface = surface
-        .downcast::<X11Surface>()
-        .map_err(|_| "Window is not using X11")?;
-    let (connection, screen_number) = x11rb::connect(None).map_err(|error| error.to_string())?;
-    let root = connection.setup().roots[screen_number].root;
-    let state = connection
-        .intern_atom(false, b"_NET_WM_STATE")
-        .map_err(|error| error.to_string())?
-        .reply()
-        .map_err(|error| error.to_string())?
-        .atom;
-    let above = connection
-        .intern_atom(false, b"_NET_WM_STATE_ABOVE")
-        .map_err(|error| error.to_string())?
-        .reply()
-        .map_err(|error| error.to_string())?
-        .atom;
-    // EWMH asks the window manager to add or remove the ABOVE state.
-    let window_id = x11_surface
-        .xid()
-        .try_into()
-        .map_err(|_| "X11 window ID exceeds u32")?;
-    let event = ClientMessageEvent::new(
-        32,
-        window_id,
-        state,
-        [if always_on_top { 1 } else { 0 }, above, 0, 1, 0],
-    );
-    connection
-        .send_event(
-            false,
-            root,
-            EventMask::SUBSTRUCTURE_REDIRECT | EventMask::SUBSTRUCTURE_NOTIFY,
-            event,
-        )
-        .map_err(|error| error.to_string())?
-        .check()
-        .map_err(|error| error.to_string())?;
-    connection.flush().map_err(|error| error.to_string())
+pub fn set_always_on_top(
+    window: &ApplicationWindow,
+    always_on_top: bool,
+    backend: Backend,
+) -> Result<(), String> {
+    match backend {
+        Backend::X11 => drawing_x11::set_always_on_top(window, always_on_top),
+        Backend::Wayland => drawing_wayland::set_always_on_top(window, always_on_top),
+        Backend::Unknown => Err("Unsupported display backend".into()),
+    }
 }

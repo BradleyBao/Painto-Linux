@@ -1,18 +1,27 @@
 use super::{drawing, ink::Tool};
+use crate::meta::Backend;
 use gtk4::{ApplicationWindow, prelude::*};
+
+use super::drawing_wayland;
 
 pub fn build_toolbar_window(
     app: &gtk4::Application,
     drawing_window: &ApplicationWindow,
     drawing_controller: &drawing::DrawingController,
+    backend: Backend,
 ) -> ApplicationWindow {
-    let window = ApplicationWindow::builder()
+    let builder = ApplicationWindow::builder()
         .application(app)
         .title("Painto Toolbar")
-        .transient_for(drawing_window)
         .decorated(false)
-        .resizable(false)
-        .build();
+        .resizable(false);
+    let window = if backend == Backend::Wayland {
+        let window = builder.build();
+        drawing_wayland::prepare_toolbar_window(&window);
+        window
+    } else {
+        builder.transient_for(drawing_window).build()
+    };
 
     let row = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
     row.set_margin_start(8);
@@ -20,25 +29,47 @@ pub fn build_toolbar_window(
     row.set_margin_top(6);
     row.set_margin_bottom(6);
 
-    let drag_handle = gtk4::WindowHandle::new();
-    let drag_label = gtk4::Label::new(Some("Move"));
-    drag_label.set_margin_start(8);
-    drag_label.set_margin_end(8);
-    drag_handle.set_child(Some(&drag_label));
-    drag_handle.set_tooltip_text(Some("Drag toolbar"));
-    row.append(&drag_handle);
+    let drag_icon = gtk4::Image::from_icon_name("drag-handle-symbolic");
+    drag_icon.set_margin_start(1);
+    drag_icon.set_margin_end(1);
+    drag_icon.set_margin_top(1);
+    drag_icon.set_margin_bottom(1);
+    drag_icon.set_tooltip_text(Some("Drag toolbar"));
+    if backend == Backend::Wayland {
+        drag_icon.set_cursor_from_name(Some("grab"));
+        let drag = gtk4::GestureDrag::new();
+        drag.set_button(1);
+        let drag_window = window.clone();
+        drag.connect_drag_update(move |_, dx, dy| {
+            drawing_wayland::move_toolbar_by(&drag_window, dx, dy);
+        });
+        drag_icon.add_controller(drag);
+        row.append(&drag_icon);
+    } else {
+        let drag_handle = gtk4::WindowHandle::new();
+        drag_handle.set_child(Some(&drag_icon));
+        row.append(&drag_handle);
+    }
     row.append(&gtk4::Separator::new(gtk4::Orientation::Vertical));
 
-    let computer = gtk4::ToggleButton::with_label("Computer");
+    let computer = gtk4::ToggleButton::new();
+    computer.set_label("Computer Mode");
+    computer.set_icon_name("cursor-arrow-symbolic");
     computer.set_tooltip_text(Some("Pass clicks through the drawing window"));
     computer.set_active(true);
-    let pen = gtk4::ToggleButton::with_label("Draw");
+    let pen = gtk4::ToggleButton::new();
+    pen.set_label("Draw");
+    pen.set_icon_name("tool_pen-symbolic");
     pen.set_tooltip_text(Some("Receive clicks on the drawing window"));
     pen.set_group(Some(&computer));
-    let object_eraser = gtk4::ToggleButton::with_label("Erase");
+    let object_eraser = gtk4::ToggleButton::new();
+    object_eraser.set_label("Erase");
+    object_eraser.set_icon_name("draw-eraser-symbolic");
     object_eraser.set_tooltip_text(Some("Remove a whole stroke"));
     object_eraser.set_group(Some(&computer));
-    let pixel_eraser = gtk4::ToggleButton::with_label("Pixel erase");
+    let pixel_eraser = gtk4::ToggleButton::new();
+    pixel_eraser.set_label("Pixel erase");
+    pixel_eraser.set_icon_name("edit-clear-symbolic");
     pixel_eraser.set_tooltip_text(Some("Erase part of a stroke"));
     pixel_eraser.set_group(Some(&computer));
 
@@ -53,7 +84,7 @@ pub fn build_toolbar_window(
         button.connect_toggled(move |button| {
             if button.is_active() {
                 if let Err(error) =
-                    drawing::set_click_through(&drawing_window, tool == Tool::Computer)
+                    drawing::set_click_through(&drawing_window, tool == Tool::Computer, backend)
                 {
                     eprintln!("Could not change drawing window input region: {error}");
                 } else {
@@ -65,11 +96,53 @@ pub fn build_toolbar_window(
     }
 
     row.append(&gtk4::Separator::new(gtk4::Orientation::Vertical));
-    let color = gtk4::ColorButton::with_rgba(&gtk4::gdk::RGBA::BLACK);
-    color.set_tooltip_text(Some("Pen color"));
-    let color_controller = drawing_controller.clone();
-    color.connect_color_set(move |button| color_controller.set_color(button.rgba()));
-    row.append(&color);
+    // A regular color dialog appears below layer-shell surfaces on Wayland.
+    if backend == Backend::Wayland {
+        let color = gtk4::MenuButton::new();
+        color.set_tooltip_text(Some("Pen color"));
+        let swatch = gtk4::DrawingArea::new();
+        swatch.set_content_width(22);
+        swatch.set_content_height(22);
+        let chooser = gtk4::ColorChooserWidget::new();
+        chooser.set_use_alpha(false);
+        chooser.set_rgba(&gtk4::gdk::RGBA::BLACK);
+        let draw_chooser = chooser.downgrade();
+        swatch.set_draw_func(move |_, context, width, height| {
+            if let Some(chooser) = draw_chooser.upgrade() {
+                let rgba = chooser.rgba();
+                context.set_source_rgba(
+                    rgba.red() as f64,
+                    rgba.green() as f64,
+                    rgba.blue() as f64,
+                    1.0,
+                );
+                context.rectangle(0.0, 0.0, width as f64, height as f64);
+                let _ = context.fill();
+            }
+        });
+        color.set_child(Some(&swatch));
+        let popover = gtk4::Popover::new();
+        popover.set_child(Some(&chooser));
+        color.set_popover(Some(&popover));
+        let color_controller = drawing_controller.clone();
+        chooser.connect_rgba_notify(move |chooser| {
+            color_controller.set_color(chooser.rgba());
+            swatch.queue_draw();
+        });
+        let close_popover = popover.downgrade();
+        chooser.connect_color_activated(move |_, _| {
+            if let Some(popover) = close_popover.upgrade() {
+                popover.popdown();
+            }
+        });
+        row.append(&color);
+    } else {
+        let color = gtk4::ColorButton::with_rgba(&gtk4::gdk::RGBA::BLACK);
+        color.set_tooltip_text(Some("Pen color"));
+        let color_controller = drawing_controller.clone();
+        color.connect_color_set(move |button| color_controller.set_color(button.rgba()));
+        row.append(&color);
+    }
 
     let width = gtk4::SpinButton::with_range(1.0, 40.0, 1.0);
     width.set_value(5.0);
