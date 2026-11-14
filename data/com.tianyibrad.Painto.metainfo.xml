@@ -24,13 +24,17 @@
     <binary>painto-linux</binary>
   </provides>
   <content_rating type="oars-1.1" />
-  <!-- TODO: Add at least one real screenshot with a stable URL before Flathub submission.
   <screenshots>
     <screenshot type="default">
-      <image>https://example.com/painto-screenshot.png</image>
+      <image>https://doc.tianyibrad.com/assets/painto-linux/home.png</image>
+    </screenshot>
+    <screenshot type="default">
+      <image>https://doc.tianyibrad.com/assets/painto-linux/math.png</image>
+    </screenshot>
+    <screenshot type="default">
+      <image>https://doc.tianyibrad.com/assets/painto-linux/tool.png</image>
     </screenshot>
   </screenshots>
-  -->
   <releases>
     <!-- TODO: Add or update this release entry with the version, date, and changes for every release. -->
     <release version="0.1.0" date="2026-11-14" type="development">

@@ -30,12 +30,12 @@ pub fn build_toolbar_window(
     row.set_margin_bottom(6);
 
     let drag_icon = gtk4::Image::from_icon_name("painto-drag-symbolic");
-    drag_icon.set_margin_start(12);
-    drag_icon.set_margin_end(12);
-    drag_icon.set_margin_top(12);
-    drag_icon.set_margin_bottom(12);
+    drag_icon.set_margin_start(2);
+    drag_icon.set_margin_end(2);
+    drag_icon.set_margin_top(2);
+    drag_icon.set_margin_bottom(2);
     let drag_area = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-    drag_area.set_size_request(40, 40);
+    drag_area.set_size_request(2, 6);
     drag_area.set_halign(gtk4::Align::Center);
     drag_area.set_valign(gtk4::Align::Center);
     drag_area.set_tooltip_text(Some("Drag toolbar"));
