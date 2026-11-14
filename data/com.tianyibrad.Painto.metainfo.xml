@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.tianyibrad.Painto</id>
+  <name>Painto</name>
+  <summary>Painto is a versatile app that allows you to draw and write directly on your computer screen in real-time, even while videos or other applications are running. </summary>
+  <developer id="com.tianyibrad">
+    <name>Bao TianYi</name>
+  </developer>
+  <metadata_license>CC0-1.0</metadata_license>
+  <!-- Keep this SPDX identifier in sync with the repository LICENSE. -->
+  <project_license>MIT</project_license>
+  <description>
+    <p>Whether you're taking notes during a presentation, sketching ideas while watching a tutorial, or simply having fun with digital doodles, Painto seamlessly integrates with your screen activity.</p>
+    <p>With a single click, you can toggle between normal computer operations and drawing mode, ensuring that your annotations remain visible without interrupting your workflow.</p>
+    <p>Painto is designed for anyone who values creativity, productivity, and the freedom to express ideas anywhere on their screen.</p>
+  </description>
+  <launchable type="desktop-id">com.tianyibrad.Painto.desktop</launchable>
+  <url type="homepage">https://github.com/BradleyBao/Painto-Linux</url>
+  <url type="bugtracker">https://github.com/BradleyBao/Painto-Linux/issues</url>
+  <categories>
+    <category>Graphics</category>
+  </categories>
+  <provides>
+    <binary>painto-linux</binary>
+  </provides>
+  <content_rating type="oars-1.1" />
+  <!-- TODO: Add at least one real screenshot with a stable URL before Flathub submission.
+  <screenshots>
+    <screenshot type="default">
+      <image>https://example.com/painto-screenshot.png</image>
+    </screenshot>
+  </screenshots>
+  -->
+  <releases>
+    <!-- TODO: Add or update this release entry with the version, date, and changes for every release. -->
+    <release version="0.1.0" date="2026-11-14" type="development">
+      <description>
+        <p>Initial alpha release with X11 and supported Wayland overlay modes.</p>
+      </description>
+    </release>
+  </releases>
+</component>

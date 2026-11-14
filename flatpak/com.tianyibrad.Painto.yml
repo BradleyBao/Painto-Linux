@@ -1,0 +1,54 @@
+# Keep this ID in sync with the desktop file, metainfo, icon filename, and src/main.rs.
+app-id: com.tianyibrad.Painto
+runtime: org.gnome.Platform
+# TODO: Review the supported GNOME runtime version before each release.
+runtime-version: '49'
+sdk: org.gnome.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+command: painto-linux
+
+# TODO: Review these display permissions when backend support changes.
+finish-args:
+  - --socket=wayland
+  - --socket=x11
+  - --share=ipc
+  - --device=dri
+
+build-options:
+  append-path: /usr/lib/sdk/rust-stable/bin
+  env:
+    CARGO_HOME: /run/build/painto-linux/cargo
+
+modules:
+  - name: gtk4-layer-shell
+    buildsystem: meson
+    config-opts:
+      - -Dintrospection=false
+      - -Dvapi=false
+      - -Dtests=false
+      - -Ddocs=false
+    sources:
+      - type: git
+        url: https://github.com/wmww/gtk4-layer-shell.git
+        # TODO: Update the tag and matching commit together when upgrading gtk4-layer-shell.
+        tag: v1.3.0
+        commit: 1c963c51514581c41b9bdae08cdf69171265cdda
+
+  - name: painto-linux
+    buildsystem: simple
+    build-commands:
+      - cargo --offline build --release --locked
+      - install -Dm755 target/release/painto-linux /app/bin/painto-linux
+      - install -Dm644 data/com.tianyibrad.Painto.desktop /app/share/applications/com.tianyibrad.Painto.desktop
+      - install -Dm644 data/com.tianyibrad.Painto.metainfo.xml /app/share/metainfo/com.tianyibrad.Painto.metainfo.xml
+      # TODO: Check that this icon is legible at launcher sizes before publishing.
+      - install -Dm644 data/icons/com.tianyibrad.Painto.svg /app/share/icons/hicolor/scalable/apps/com.tianyibrad.Painto.svg
+      - install -Dm644 LICENSE /app/share/licenses/com.tianyibrad.Painto/LICENSE
+    sources:
+      # TODO: Replace this moving branch with an immutable release tag and matching commit before submitting to Flathub.
+      - type: git
+        url: https://github.com/BradleyBao/Painto-Linux.git
+        branch: main
+      # TODO: Regenerate this file whenever Cargo.lock changes; see flatpak/README.md.
+      - cargo-sources.json

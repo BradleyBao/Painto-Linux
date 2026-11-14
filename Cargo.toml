@@ -1,7 +1,10 @@
 [package]
 name = "painto-linux"
+# TODO: Update for each release and keep the AppStream release version in sync.
 version = "0.1.0"
 edition = "2024"
+# Keep in sync with LICENSE and the AppStream project_license.
+license = "MIT"
 
 [dependencies]
 gdk4 = "0.11.5"

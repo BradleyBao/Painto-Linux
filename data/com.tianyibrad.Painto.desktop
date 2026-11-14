@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Painto
+Comment=Draw annotations over your desktop
+Exec=painto-linux
+Icon=com.tianyibrad.Painto
+Categories=Graphics;
+Terminal=false
