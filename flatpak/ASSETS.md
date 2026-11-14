@@ -5,7 +5,7 @@ The toolbar SVGs were exported from [GNOME Icon Library](https://flathub.org/en/
 <!-- TODO: Choose and record a license for the original application logo before submitting to Flathub. -->
 | File | Source URL / author | License | Notes |
 | --- | --- | --- | --- |
-| `data/icons/com.tianyibrad.Painto.svg` | Bao TianYi (original work) | CC BY-ND | Painto application logo |
+| `data/icons/com.tianyibrad.Painto.svg` | Bao TianYi (original work) | CC BY-ND-4.0 | Painto application logo |
 | `resources/draggable-symbolic.svg` | [GNOME Icon Library](https://flathub.org/en/apps/org.gnome.design.IconLibrary); embedded author: Jakub Steiner | CC0-1.0 | License recorded in SVG metadata |
 | `resources/pointer-left-symbolic.svg` | [GNOME Icon Library](https://flathub.org/en/apps/org.gnome.design.IconLibrary); embedded author: Jakub Steiner | CC0-1.0 | License recorded in SVG metadata |
 | `resources/eraser-symbolic.svg` | [GNOME Icon Library](https://flathub.org/en/apps/org.gnome.design.IconLibrary); embedded author: Jakub Steiner | CC0-1.0 | License recorded in SVG metadata |
