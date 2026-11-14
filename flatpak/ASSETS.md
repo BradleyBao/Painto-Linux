@@ -1,15 +1,15 @@
 # Asset provenance
 
-Confirm the source URL, author, and redistribution license for every bundled icon before submitting to Flathub. The rows below are editable placeholders, not license claims.
+The toolbar SVGs were exported from [GNOME Icon Library](https://flathub.org/en/apps/org.gnome.design.IconLibrary), which imports its icon collection from the [GNOME Icon Development Kit](https://gitlab.gnome.org/Teams/Design/icon-development-kit). The development kit's [README](https://gitlab.gnome.org/Teams/Design/icon-development-kit/-/blob/main/README.md) and [COPYING.md](https://gitlab.gnome.org/Teams/Design/icon-development-kit/-/blob/main/COPYING.md) identify the icon assets as CC0-1.0. The application logo was created by Bao TianYi.
 
-<!-- TODO: Complete each source and license field before submitting to Flathub. -->
+<!-- TODO: Choose and record a license for the original application logo before submitting to Flathub. -->
 | File | Source URL / author | License | Notes |
 | --- | --- | --- | --- |
-| `data/icons/com.tianyibrad.Painto.svg` | TODO | TODO | Current Painto wordmark; confirm its source and license |
-| `resources/draggable-symbolic.svg` | TODO | TODO | Embedded metadata names Jakub Steiner and CC0 |
-| `resources/pointer-left-symbolic.svg` | TODO | TODO | Embedded metadata names Jakub Steiner and CC0 |
-| `resources/eraser-symbolic.svg` | TODO | TODO | Embedded metadata names Jakub Steiner and CC0 |
-| `resources/pen-symbolic.svg` | Painto Linux contributors | TODO | Drawn for this project |
-| `resources/draw-eraser-delete-objects-symbolic.svg` | TODO | TODO | Verify upstream license |
-| `resources/tool-eraser-symbolic.svg` | TODO | TODO | Verify upstream license |
-| `resources/gtk-close-symbolic.svg` | TODO | TODO | Verify upstream license |
+| `data/icons/com.tianyibrad.Painto.svg` | Bao TianYi (original work) | CC BY-ND | Painto application logo |
+| `resources/draggable-symbolic.svg` | [GNOME Icon Library](https://flathub.org/en/apps/org.gnome.design.IconLibrary); embedded author: Jakub Steiner | CC0-1.0 | License recorded in SVG metadata |
+| `resources/pointer-left-symbolic.svg` | [GNOME Icon Library](https://flathub.org/en/apps/org.gnome.design.IconLibrary); embedded author: Jakub Steiner | CC0-1.0 | License recorded in SVG metadata |
+| `resources/eraser-symbolic.svg` | [GNOME Icon Library](https://flathub.org/en/apps/org.gnome.design.IconLibrary); embedded author: Jakub Steiner | CC0-1.0 | License recorded in SVG metadata |
+| `resources/pen-symbolic.svg` | [GNOME Icon Library](https://flathub.org/en/apps/org.gnome.design.IconLibrary) | CC0-1.0 | Development kit license |
+| `resources/draw-eraser-delete-objects-symbolic.svg` | [GNOME Icon Library](https://flathub.org/en/apps/org.gnome.design.IconLibrary) | CC0-1.0 | Development kit license |
+| `resources/tool-eraser-symbolic.svg` | [GNOME Icon Library](https://flathub.org/en/apps/org.gnome.design.IconLibrary) | CC0-1.0 | Development kit license |
+| `resources/gtk-close-symbolic.svg` | [GNOME Icon Library](https://flathub.org/en/apps/org.gnome.design.IconLibrary) | CC0-1.0 | Development kit license |
