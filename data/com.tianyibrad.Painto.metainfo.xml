@@ -8,7 +8,7 @@
   </developer>
   <metadata_license>CC0-1.0</metadata_license>
   <!-- Keep this SPDX identifier in sync with the repository LICENSE. -->
-  <project_license>MIT</project_license>
+  <project_license>MIT AND CC-BY-ND-4.0</project_license>
   <description>
     <p>Whether you're taking notes during a presentation, sketching ideas while watching a tutorial, or simply having fun with digital doodles, Painto seamlessly integrates with your screen activity.</p>
     <p>With a single click, you can toggle between normal computer operations and drawing mode, ensuring that your annotations remain visible without interrupting your workflow.</p>

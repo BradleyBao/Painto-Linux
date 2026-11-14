@@ -20,8 +20,8 @@ fi
 flatpak remote-add --user --if-not-exists flathub \
     https://flathub.org/repo/flathub.flatpakrepo
 
-if ! flatpak remote-info --user flathub org.gnome.Sdk//49 >/dev/null; then
-    printf 'GNOME SDK 49 is not available from the user Flathub remote.\n' >&2
+if ! flatpak remote-info --user flathub org.gnome.Sdk//51 >/dev/null; then
+    printf 'GNOME SDK 51 is not available from the user Flathub remote.\n' >&2
     printf 'Check: flatpak remotes --user --show-details\n' >&2
     exit 1
 fi

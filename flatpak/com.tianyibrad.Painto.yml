@@ -2,7 +2,7 @@
 app-id: com.tianyibrad.Painto
 runtime: org.gnome.Platform
 # TODO: Review the supported GNOME runtime version before each release.
-runtime-version: '49'
+runtime-version: '51'
 sdk: org.gnome.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.rust-stable
@@ -51,5 +51,5 @@ modules:
         url: https://github.com/BradleyBao/Painto-Linux.git
         tag: v0.2.1
         commit: 9b03eea341a6b2a22ec0dae3ba733c566d8d062c
-      # TODO: Regenerate this file whenever Cargo.lock changes; see flatpak/README.md.
+      # !Regenerate this file whenever Cargo.lock changes; see flatpak/README.md.
       - cargo-sources.json
