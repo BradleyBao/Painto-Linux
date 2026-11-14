@@ -36,6 +36,11 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="0.2.2" date="2026-11-14" type="development">
+      <description>
+        <p>Update Flatpak runtime and license metadata</p>
+      </description>
+    </release>
     <release version="0.2.1" date="2026-11-14" type="development">
       <description>
         <p>Flatpak metadata corrections and toolbar fixes.</p>
