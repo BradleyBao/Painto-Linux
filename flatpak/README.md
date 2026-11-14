@@ -17,13 +17,22 @@ These are editable templates, not a submitted Flathub package. Keep the applicat
 
 ## Local verification
 
-Build and install the template with:
+Build and install the template with `scripts/build_flatpak.sh`. The script ensures a user-level Flathub remote exists before installing the GNOME SDK and Rust extension:
 
 ```sh
-flatpak-builder --user --install --force-clean flatpak-build flatpak/com.tianyibrad.Painto.yml
-flatpak run com.tianyibrad.Painto
+./scripts/build_flatpak.sh
+flatpak run --user com.tianyibrad.Painto
 appstreamcli validate data/com.tianyibrad.Painto.metainfo.xml
 desktop-file-validate data/com.tianyibrad.Painto.desktop
 ```
+
+If another machine reports `No remote refs found for flathub`, check its user remote and SDK reference with:
+
+```sh
+flatpak remotes --user --show-details
+flatpak remote-info --user flathub org.gnome.Sdk//49
+```
+
+The `XDG_DATA_DIRS` notice only affects whether the desktop launcher appears immediately. Log out and back in after installing Flatpak if the application is missing from the menu.
 
 Check both X11 and Wayland sessions using `TESTING.md`. On Wayland, test a compositor with layer-shell support. The canvas currently covers one monitor and drawings are kept only in memory. This manifest exposes both X11 and Wayland sockets so users can choose the X11 backend when a Wayland compositor lacks layer-shell support.

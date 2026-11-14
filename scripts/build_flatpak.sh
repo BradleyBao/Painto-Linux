@@ -1,25 +1,33 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Check if flatpak-builder is installed
-if ! command -v flatpak-builder &> /dev/null; then
-    # Install flatpak-builder if not found
-    # Check if the system is Debian-based
-    if [ -f /etc/debian_version ]; then
-        sudo apt update
-        sudo apt install -y flatpak-builder
-    # Check if the system is Fedora-based
-    elif [ -f /etc/fedora-release ]; then
+cd "$(dirname "$0")/.."
+
+if ! command -v flatpak-builder >/dev/null 2>&1; then
+    if [[ -f /etc/debian_version ]]; then
+        sudo apt-get update
+        sudo apt-get install -y flatpak-builder
+    elif [[ -f /etc/fedora-release ]]; then
         sudo dnf install -y flatpak-builder
-    elif [ -f /etc/arch-release ]; then
-        sudo pacman -S flatpak-builder
+    elif [[ -f /etc/arch-release ]]; then
+        sudo pacman -S --needed flatpak-builder
     else
-        echo "Unsupported Linux distribution. Please install flatpak-builder manually."
+        printf 'Install flatpak-builder with your distribution package manager.\n' >&2
         exit 1
     fi
-
-    flatpak-builder --user --install-deps-from=flathub --install \
-        --force-clean flatpak-build flatpak/com.tianyibrad.Painto.yml
 fi
 
-flatpak run com.tianyibrad.Painto
-flatpak info com.tianyibrad.Painto
+flatpak remote-add --user --if-not-exists flathub \
+    https://flathub.org/repo/flathub.flatpakrepo
+
+if ! flatpak remote-info --user flathub org.gnome.Sdk//49 >/dev/null; then
+    printf 'GNOME SDK 49 is not available from the user Flathub remote.\n' >&2
+    printf 'Check: flatpak remotes --user --show-details\n' >&2
+    exit 1
+fi
+
+flatpak-builder --user --install-deps-from=flathub --install \
+    --force-clean flatpak-build flatpak/com.tianyibrad.Painto.yml
+
+flatpak info --user com.tianyibrad.Painto
+printf '\nBuild installed. Run it with: flatpak run --user com.tianyibrad.Painto\n'

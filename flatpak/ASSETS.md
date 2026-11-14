@@ -2,7 +2,6 @@
 
 The toolbar SVGs were exported from [GNOME Icon Library](https://flathub.org/en/apps/org.gnome.design.IconLibrary), which imports its icon collection from the [GNOME Icon Development Kit](https://gitlab.gnome.org/Teams/Design/icon-development-kit). The development kit's [README](https://gitlab.gnome.org/Teams/Design/icon-development-kit/-/blob/main/README.md) and [COPYING.md](https://gitlab.gnome.org/Teams/Design/icon-development-kit/-/blob/main/COPYING.md) identify the icon assets as CC0-1.0. The application logo was created by Bao TianYi.
 
-<!-- TODO: Choose and record a license for the original application logo before submitting to Flathub. -->
 | File | Source URL / author | License | Notes |
 | --- | --- | --- | --- |
 | `data/icons/com.tianyibrad.Painto.svg` | Bao TianYi (original work) | CC BY-ND-4.0 | Painto application logo |
