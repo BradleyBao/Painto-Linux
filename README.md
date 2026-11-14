@@ -15,6 +15,8 @@ sudo apt install libgtk-4-dev libgtk4-layer-shell-dev libcairo2-dev pkg-config
 pkg-config --modversion gtk4 cairo
 ```
 
+Building also requires `glib-compile-resources`, which is provided with the GLib development tools. Toolbar SVG icons are embedded in the executable.
+
 In a Plasma X11 session, run:
 
 ```sh

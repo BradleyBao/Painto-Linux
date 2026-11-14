@@ -3,12 +3,15 @@ use painto_linux::meta::{Backend, check_backend};
 use painto_linux::window::{drawing, toolbar};
 
 fn main() -> glib::ExitCode {
+    gio::resources_register_include!("icons.gresource").expect("Could not load bundled icons");
     let app = gtk4::Application::new(
         Some("com.tianyibrad.Painto"),
         gio::ApplicationFlags::FLAGS_NONE,
     );
 
     app.connect_activate(|app| {
+        let display = gtk4::gdk::Display::default().expect("Could not connect to a display");
+        gtk4::IconTheme::for_display(&display).add_resource_path("/com/tianyibrad/Painto/icons");
         let backend = check_backend();
         if backend == Backend::Unknown {
             eprintln!("Unsupported display backend");
@@ -36,4 +39,28 @@ fn main() -> glib::ExitCode {
         }
     });
     app.run()
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn bundled_toolbar_icons_are_available() {
+        gtk4::gio::resources_register_include!("icons.gresource").unwrap();
+        for name in [
+            "drag",
+            "pointer",
+            "pen",
+            "eraser",
+            "pixel-eraser",
+            "clear",
+            "close",
+        ] {
+            let path =
+                format!("/com/tianyibrad/Painto/icons/scalable/actions/painto-{name}-symbolic.svg");
+            let data =
+                gtk4::gio::resources_lookup_data(&path, gtk4::gio::ResourceLookupFlags::NONE)
+                    .unwrap_or_else(|error| panic!("Missing {path}: {error}"));
+            assert!(!data.is_empty(), "Empty icon: {path}");
+        }
+    }
 }

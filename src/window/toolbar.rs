@@ -29,7 +29,7 @@ pub fn build_toolbar_window(
     row.set_margin_top(6);
     row.set_margin_bottom(6);
 
-    let drag_icon = gtk4::Image::from_icon_name("drag-handle-symbolic");
+    let drag_icon = gtk4::Image::from_icon_name("painto-drag-symbolic");
     drag_icon.set_margin_start(1);
     drag_icon.set_margin_end(1);
     drag_icon.set_margin_top(1);
@@ -54,22 +54,22 @@ pub fn build_toolbar_window(
 
     let computer = gtk4::ToggleButton::new();
     computer.set_label("Computer Mode");
-    computer.set_icon_name("cursor-arrow-symbolic");
+    computer.set_icon_name("painto-pointer-symbolic");
     computer.set_tooltip_text(Some("Pass clicks through the drawing window"));
     computer.set_active(true);
     let pen = gtk4::ToggleButton::new();
     pen.set_label("Draw");
-    pen.set_icon_name("tool_pen-symbolic");
+    pen.set_icon_name("painto-pen-symbolic");
     pen.set_tooltip_text(Some("Receive clicks on the drawing window"));
     pen.set_group(Some(&computer));
     let object_eraser = gtk4::ToggleButton::new();
     object_eraser.set_label("Erase");
-    object_eraser.set_icon_name("draw-eraser-symbolic");
+    object_eraser.set_icon_name("painto-eraser-symbolic");
     object_eraser.set_tooltip_text(Some("Remove a whole stroke"));
     object_eraser.set_group(Some(&computer));
     let pixel_eraser = gtk4::ToggleButton::new();
     pixel_eraser.set_label("Pixel erase");
-    pixel_eraser.set_icon_name("edit-clear-symbolic");
+    pixel_eraser.set_icon_name("painto-pixel-eraser-symbolic");
     pixel_eraser.set_tooltip_text(Some("Erase part of a stroke"));
     pixel_eraser.set_group(Some(&computer));
 
@@ -154,14 +154,14 @@ pub fn build_toolbar_window(
 
     // Clear Canva Button
     row.append(&gtk4::Separator::new(gtk4::Orientation::Vertical));
-    let clear = gtk4::Button::from_icon_name("edit-clear-all-symbolic");
+    let clear = gtk4::Button::from_icon_name("painto-clear-symbolic");
     clear.set_tooltip_text(Some("Clear all ink"));
     let clear_controller = drawing_controller.clone();
     clear.connect_clicked(move |_| clear_controller.clear());
     row.append(&clear);
 
     // Close Application Button
-    let close = gtk4::Button::from_icon_name("window-close-symbolic");
+    let close = gtk4::Button::from_icon_name("painto-close-symbolic");
     close.set_tooltip_text(Some("Close Painto"));
     let app_weak = app.downgrade();
     close.connect_clicked(move |_| {

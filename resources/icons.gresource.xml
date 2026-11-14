@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/com/tianyibrad/Painto/icons">
+    <file alias="scalable/actions/painto-drag-symbolic.svg">draggable-symbolic.svg</file>
+    <file alias="scalable/actions/painto-pointer-symbolic.svg">pointer-left-symbolic.svg</file>
+    <file alias="scalable/actions/painto-pen-symbolic.svg">pen-symbolic.svg</file>
+    <file alias="scalable/actions/painto-eraser-symbolic.svg">eraser-symbolic.svg</file>
+    <file alias="scalable/actions/painto-pixel-eraser-symbolic.svg">tool-eraser-symbolic.svg</file>
+    <file alias="scalable/actions/painto-clear-symbolic.svg">draw-eraser-delete-objects-symbolic.svg</file>
+    <file alias="scalable/actions/painto-close-symbolic.svg">gtk-close-symbolic.svg</file>
+  </gresource>
+</gresources>
