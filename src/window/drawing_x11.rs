@@ -8,16 +8,15 @@ use x11rb::{
     },
 };
 
-pub fn place_toolbar_bottom_left(window: &ApplicationWindow) -> Result<(), String> {
+pub fn place_toolbar_bottom_left(
+    window: &ApplicationWindow,
+    monitor: &gtk4::gdk::Monitor,
+) -> Result<(), String> {
     let surface = window.surface().ok_or("Window has no surface yet")?;
     let x11_surface = surface
         .clone()
         .downcast::<X11Surface>()
         .map_err(|_| "Window is not using X11")?;
-    let monitor = surface
-        .display()
-        .monitor_at_surface(&surface)
-        .ok_or("Could not determine toolbar monitor")?;
     let bounds = monitor.geometry();
     let (connection, _) = x11rb::connect(None).map_err(|error| error.to_string())?;
     let window_id = x11_surface

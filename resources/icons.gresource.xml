@@ -8,5 +8,6 @@
     <file alias="scalable/actions/painto-pixel-eraser-symbolic.svg">tool-eraser-symbolic.svg</file>
     <file alias="scalable/actions/painto-clear-symbolic.svg">draw-eraser-delete-objects-symbolic.svg</file>
     <file alias="scalable/actions/painto-close-symbolic.svg">gtk-close-symbolic.svg</file>
+    <file alias="scalable/actions/painto-settings-symbolic.svg">cogged-wheel-big-symbolic.svg</file>
   </gresource>
 </gresources>

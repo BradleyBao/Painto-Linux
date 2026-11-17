@@ -2,11 +2,12 @@ use gdk4_wayland::WaylandSurface;
 use gtk4::{ApplicationWindow, cairo, prelude::*};
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
 
-pub fn prepare_drawing_window(window: &ApplicationWindow) {
+pub fn prepare_drawing_window(window: &ApplicationWindow, monitor: &gtk4::gdk::Monitor) {
     window.init_layer_shell();
     window.set_namespace(Some("painto-canvas"));
     window.set_layer(Layer::Overlay);
     window.set_exclusive_zone(-1);
+    window.set_monitor(Some(monitor));
     for edge in [Edge::Top, Edge::Bottom, Edge::Left, Edge::Right] {
         window.set_anchor(edge, true);
     }

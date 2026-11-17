@@ -11,6 +11,7 @@ fn main() {
         "tool-eraser-symbolic.svg",
         "draw-eraser-delete-objects-symbolic.svg",
         "gtk-close-symbolic.svg",
+        "cogged-wheel-big-symbolic.svg",
     ];
 
     println!("cargo:rerun-if-changed=resources/icons.gresource.xml");

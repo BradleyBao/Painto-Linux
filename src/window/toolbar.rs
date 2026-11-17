@@ -1,14 +1,15 @@
-use super::{drawing, ink::Tool};
+use super::{drawing, ink::Tool, overlay::OverlayManager};
 use crate::meta::Backend;
 use gtk4::{ApplicationWindow, prelude::*};
 
-use super::{drawing_wayland, drawing_x11};
+use super::{drawing_wayland, drawing_x11, settings};
 
 pub fn build_toolbar_window(
     app: &gtk4::Application,
     drawing_window: &ApplicationWindow,
     drawing_controller: &drawing::DrawingController,
     backend: Backend,
+    manager: &OverlayManager,
 ) -> ApplicationWindow {
     let builder = ApplicationWindow::builder()
         .application(app)
@@ -18,6 +19,9 @@ pub fn build_toolbar_window(
     let window = if backend == Backend::Wayland {
         let window = builder.build();
         drawing_wayland::prepare_toolbar_window(&window);
+        if let Some(monitor) = manager.selected_monitor() {
+            gtk4_layer_shell::LayerShell::set_monitor(&window, Some(&monitor));
+        }
         window
     } else {
         builder.transient_for(drawing_window).build()
@@ -84,13 +88,11 @@ pub fn build_toolbar_window(
         (&object_eraser, Tool::ObjectEraser),
         (&pixel_eraser, Tool::PixelEraser),
     ] {
-        let drawing_window = drawing_window.clone();
+        let window_manager = manager.clone();
         let controller = drawing_controller.clone();
         button.connect_toggled(move |button| {
             if button.is_active() {
-                if let Err(error) =
-                    drawing::set_click_through(&drawing_window, tool == Tool::Computer, backend)
-                {
+                if let Err(error) = window_manager.set_click_through(tool == Tool::Computer) {
                     eprintln!("Could not change drawing window input region: {error}");
                 } else {
                     controller.set_tool(tool);
@@ -150,8 +152,8 @@ pub fn build_toolbar_window(
         row.append(&color);
     }
 
-    let width = gtk4::SpinButton::with_range(1.0, 40.0, 1.0);
-    width.set_value(5.0);
+    let pen_width = gtk4::Adjustment::new(5.0, 1.0, 40.0, 1.0, 5.0, 0.0);
+    let width = gtk4::SpinButton::new(Some(&pen_width), 1.0, 0);
     width.set_width_chars(2);
     width.set_tooltip_text(Some("Pen width"));
     let width_controller = drawing_controller.clone();
@@ -165,6 +167,16 @@ pub fn build_toolbar_window(
     let clear_controller = drawing_controller.clone();
     clear.connect_clicked(move |_| clear_controller.clear());
     row.append(&clear);
+
+    row.append(&gtk4::Separator::new(gtk4::Orientation::Vertical));
+    let settings_button = gtk4::MenuButton::new();
+    settings_button.set_icon_name("painto-settings-symbolic");
+    settings_button.set_tooltip_text(Some("Settings"));
+    if backend == Backend::Wayland {
+        settings_button.set_direction(gtk4::ArrowType::Up);
+    }
+    settings_button.set_popover(Some(&settings::build_settings_popover(manager)));
+    row.append(&settings_button);
 
     // Close Application Button
     let close = gtk4::Button::from_icon_name("painto-close-symbolic");
@@ -181,8 +193,11 @@ pub fn build_toolbar_window(
     window.present();
     if backend == Backend::X11 {
         let placed_window = window.clone();
+        let selected_monitor = manager.selected_monitor();
         gtk4::glib::idle_add_local_once(move || {
-            if let Err(error) = drawing_x11::place_toolbar_bottom_left(&placed_window) {
+            if let Some(monitor) = selected_monitor
+                && let Err(error) = drawing_x11::place_toolbar_bottom_left(&placed_window, &monitor)
+            {
                 eprintln!("Could not place toolbar at bottom-left: {error}");
             }
         });

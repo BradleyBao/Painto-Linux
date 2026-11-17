@@ -1,6 +1,6 @@
 use gtk4::{gio, glib, prelude::*};
 use painto_linux::meta::{Backend, check_backend};
-use painto_linux::window::{drawing, toolbar};
+use painto_linux::window::{drawing, overlay::OverlayManager, toolbar};
 
 fn main() -> glib::ExitCode {
     gio::resources_register_include!("icons.gresource").expect("Could not load bundled icons");
@@ -24,18 +24,23 @@ fn main() -> glib::ExitCode {
             return;
         }
 
-        let (drawing_window, drawing_controller) = drawing::build_drawing_window(app, backend);
-
-        if let Err(error) = drawing::set_click_through(&drawing_window, true, backend) {
-            eprintln!("Could not change drawing window input region: {error}");
+        let manager = OverlayManager::new(app, backend);
+        if let Err(error) = manager.apply_saved() {
+            eprintln!("Could not create drawing windows: {error}");
+            app.quit();
+            return;
         }
-        let toolbar_window =
-            toolbar::build_toolbar_window(app, &drawing_window, &drawing_controller, backend);
+        let drawing_window = manager.primary_window().expect("No drawing window");
+        let toolbar_window = toolbar::build_toolbar_window(
+            app,
+            &drawing_window,
+            &manager.controller(),
+            backend,
+            &manager,
+        );
+        manager.set_toolbar(&toolbar_window);
         if let Err(error) = drawing::set_always_on_top(&toolbar_window, true, backend) {
             eprintln!("Could not keep toolbar above other windows: {error}");
-        }
-        if let Err(error) = drawing::set_always_on_top(&drawing_window, true, backend) {
-            eprintln!("Could not keep drawing window above others: {error}");
         }
     });
     app.run()
@@ -54,6 +59,7 @@ mod tests {
             "pixel-eraser",
             "clear",
             "close",
+            "settings",
         ] {
             let path =
                 format!("/com/tianyibrad/Painto/icons/scalable/actions/painto-{name}-symbolic.svg");
