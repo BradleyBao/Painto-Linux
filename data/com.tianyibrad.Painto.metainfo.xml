@@ -35,6 +35,11 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="0.3.0" date="2026-11-17" type="development">
+      <description>
+        <p>Add multi-display settings for wayland and x11</p>
+      </description>
+    </release>
     <release version="0.2.2" date="2026-11-14" type="development">
       <description>
         <p>Update Flatpak runtime and license metadata</p>
