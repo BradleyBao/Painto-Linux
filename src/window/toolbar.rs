@@ -2,7 +2,10 @@ use super::{drawing, ink::Tool, overlay::OverlayManager};
 use crate::meta::Backend;
 use gtk4::{ApplicationWindow, prelude::*};
 
-use super::{drawing_wayland, drawing_x11, settings};
+use super::{
+    drawing_wayland, drawing_x11, settings,
+    shortcuts::{Action, ShortcutManager},
+};
 
 pub fn build_toolbar_window(
     app: &gtk4::Application,
@@ -175,9 +178,6 @@ pub fn build_toolbar_window(
     if backend == Backend::Wayland {
         settings_button.set_direction(gtk4::ArrowType::Up);
     }
-    settings_button.set_popover(Some(&settings::build_settings_popover(manager)));
-    row.append(&settings_button);
-
     // Close Application Button
     let close = gtk4::Button::from_icon_name("painto-close-symbolic");
     close.set_tooltip_text(Some("Close Painto"));
@@ -188,6 +188,26 @@ pub fn build_toolbar_window(
         }
     });
     row.append(&close);
+
+    let computer_ref = computer.downgrade();
+    let pen_ref = pen.downgrade();
+    let eraser_ref = object_eraser.downgrade();
+    let pixel_ref = pixel_eraser.downgrade();
+    let clear_ref = clear.downgrade();
+    let close_ref = close.downgrade();
+    let shortcuts = ShortcutManager::new(backend, move |action| {
+        match action {
+            Action::Computer => computer_ref.upgrade().map(|button| button.set_active(true)),
+            Action::Pen => pen_ref.upgrade().map(|button| button.set_active(true)),
+            Action::Eraser => eraser_ref.upgrade().map(|button| button.set_active(true)),
+            Action::PixelEraser => pixel_ref.upgrade().map(|button| button.set_active(true)),
+            Action::Clear => clear_ref.upgrade().map(|button| button.emit_clicked()),
+            Action::Close => close_ref.upgrade().map(|button| button.emit_clicked()),
+        };
+    });
+    shortcuts.start_x11_poll();
+    settings_button.set_popover(Some(&settings::build_settings_popover(manager, &shortcuts)));
+    row.append(&settings_button);
 
     window.set_child(Some(&row));
     window.present();

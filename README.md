@@ -40,6 +40,8 @@ GDK_BACKEND=wayland cargo run
 
 The toolbar switches between Computer (click-through), Draw, whole-stroke Erase, and Pixel erase. Draw supports pen color and width; Clear removes all annotations. Annotations are kept only in memory. Drag the Move handle to reposition the toolbar on either X11 or Wayland.
 
+Global shortcuts are configured in Settings and saved alongside display preferences in `painto/settings.ini`. Computer, Pen, and whole-stroke Erase default to Alt+C, Alt+B, and Alt+E. Pixel erase, Clear all, and Close can be assigned there. On Wayland, choose Enable global shortcuts in Settings to request approval from the desktop.
+
 The Settings page lets you select a display or cover all connected displays. All canvas windows share the same in-memory annotations. Display preferences take effect immediately and are saved in `painto/settings.ini` under the user's XDG configuration directory (inside the app's configuration directory when installed as a Flatpak).
 
 If you see many `undefined symbol: gtk_...` linker errors after a previous `DOCS_RS=1` build, run `cargo clean` once and then `GDK_BACKEND=x11 cargo run` again.

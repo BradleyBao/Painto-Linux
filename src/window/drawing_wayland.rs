@@ -1,6 +1,6 @@
 use gdk4_wayland::WaylandSurface;
 use gtk4::{ApplicationWindow, cairo, prelude::*};
-use gtk4_layer_shell::{Edge, Layer, LayerShell};
+use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
 
 pub fn prepare_drawing_window(window: &ApplicationWindow, monitor: &gtk4::gdk::Monitor) {
     window.init_layer_shell();
@@ -17,6 +17,7 @@ pub fn prepare_toolbar_window(window: &ApplicationWindow) {
     window.init_layer_shell();
     window.set_namespace(Some("painto-toolbar"));
     window.set_layer(Layer::Overlay);
+    window.set_keyboard_mode(KeyboardMode::OnDemand);
     window.set_exclusive_zone(-1);
     window.set_anchor(Edge::Bottom, true);
     window.set_anchor(Edge::Left, true);

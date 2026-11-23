@@ -39,6 +39,10 @@ impl DisplaySettings {
         fs::create_dir_all(path.parent().ok_or("Invalid settings path")?)
             .map_err(|error| error.to_string())?;
         let file = KeyFile::new();
+        if path.exists() {
+            file.load_from_file(path, KeyFileFlags::NONE)
+                .map_err(|error| error.to_string())?;
+        }
         file.set_string("Canvas", "monitor", &self.connector);
         file.set_boolean("Canvas", "all-monitors", self.all_monitors);
         file.save_to_file(path).map_err(|error| error.to_string())
